@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Markdown to HTML Copy Tool</title>
+  <!-- Marked.js (CDN) to parse Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif; 
+      margin: 20px;
+      max-width: 600px;
+    }
+    h1 {
+      margin-bottom: 0.5em;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      font-family: monospace;
+      margin-bottom: 10px;
+    }
+    button {
+      margin: 5px 0;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    #preview {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Markdown to HTML Copy Tool</h1>
+
+  <p>Paste your Markdown below, then render and copy the result as HTML.</p>
+
+  <textarea id="mdInput"># Hello World
+
+**Bold** text here, *italics* there!
+
+- List item 1
+- List item 2
+  </textarea>
+
+  <br>
+  <button id="renderBtn">Render Preview</button>
+  <button id="copyBtn">Copy as HTML</button>
+
+  <div id="preview"></div>
+
+  <script>
+    // 1) Render button
+    document.getElementById('renderBtn').addEventListener('click', function() {
+      var rawMD = document.getElementById('mdInput').value;
+      // Convert Markdown -> HTML
+      var html = marked.parse(rawMD);
+      // Display in preview div
+      document.getElementById('preview').innerHTML = html;
+    });
+
+    // 2) Copy button
+    document.getElementById('copyBtn').addEventListener('click', async function() {
+      var rawMD = document.getElementById('mdInput').value;
+      var html = marked.parse(rawMD);
+
+      // Check if Clipboard API is available
+      if (navigator.clipboard && navigator.clipboard.write) {
+        try {
+          // We'll copy two formats:
+          //   text/html for rich text
+          //   text/plain for fallback
+          var blobHtml = new Blob([html], { type: 'text/html' });
+          var blobText = new Blob([rawMD], { type: 'text/plain' });
+          var clipboardItem = new ClipboardItem({
+            'text/html': blobHtml,
+            'text/plain': blobText
+          });
+
+          await navigator.clipboard.write([clipboardItem]);
+          alert('Copied rendered HTML to clipboard!');
+        } catch (err) {
+          console.error('Copy failed', err);
+          alert('Failed to copy: ' + err);
+        }
+      } else {
+        alert('Clipboard API not supported in this browser. Try Chrome, Edge, etc.');
+      }
+    });
+  </script>
+</body>
+</html>
